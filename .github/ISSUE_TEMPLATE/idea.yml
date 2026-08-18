@@ -1,0 +1,11 @@
+name: "💡 Idea / RFC"
+description: An early idea not yet ready to build
+labels: ["type:idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes: { label: The idea }
+    validations: { required: true }
+  - type: textarea
+    id: open-questions
+    attributes: { label: Open questions }

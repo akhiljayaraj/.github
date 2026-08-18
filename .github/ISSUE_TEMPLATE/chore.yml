@@ -1,0 +1,8 @@
+name: "🔧 Chore"
+description: Maintenance, refactor, or tooling
+labels: ["type:chore"]
+body:
+  - type: textarea
+    id: task
+    attributes: { label: "What needs doing?" }
+    validations: { required: true }
