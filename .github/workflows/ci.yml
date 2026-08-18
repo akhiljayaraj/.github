@@ -1,0 +1,131 @@
+# .github/workflows/ci.yml
+name: CI
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: "node | python"
+        type: string
+        default: node
+      node-version:
+        type: string
+        default: "20"
+      python-version:
+        type: string
+        default: "3.12"
+      run-integration:
+        type: boolean
+        default: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - if: inputs.language == 'node'
+        run: npm ci
+      - if: inputs.language == 'node'
+        run: npm run lint
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - if: inputs.language == 'python'
+        run: pip install ruff && ruff check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - if: inputs.language == 'node'
+        run: npm ci
+      - if: inputs.language == 'node'
+        run: npm run typecheck
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - if: inputs.language == 'python'
+        run: pip install mypy && mypy .
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - if: inputs.language == 'node'
+        run: npm ci
+      - if: inputs.language == 'node'
+        run: npm run test:unit -- --coverage
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - if: inputs.language == 'python'
+        run: pip install -e '.[dev]' && pytest -m 'not integration' --cov
+
+  integration:
+    if: inputs.run-integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - if: inputs.language == 'node'
+        run: npm ci
+      - if: inputs.language == 'node'
+        run: npm run test:integration
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - if: inputs.language == 'python'
+        run: pip install -e '.[dev]' && pytest -m integration
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - if: inputs.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+      - if: inputs.language == 'node'
+        run: npm ci
+      - if: inputs.language == 'node'
+        run: npm run build
+      - if: inputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - if: inputs.language == 'python'
+        run: pip install build && python -m build
