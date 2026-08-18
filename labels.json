@@ -1,0 +1,10 @@
+[
+  { "name": "type:bug",      "color": "d73a4a", "description": "Something is broken" },
+  { "name": "type:feature",  "color": "0e8a16", "description": "New functionality" },
+  { "name": "type:idea",     "color": "fbca04", "description": "Early idea / RFC" },
+  { "name": "type:chore",    "color": "cfd3d7", "description": "Maintenance / tooling" },
+  { "name": "priority:high", "color": "b60205", "description": "Do soon" },
+  { "name": "priority:med",  "color": "d93f0b", "description": "Normal priority" },
+  { "name": "priority:low",  "color": "fef2c0", "description": "Someday" },
+  { "name": "status:blocked","color": "5319e7", "description": "Blocked on something" }
+]
